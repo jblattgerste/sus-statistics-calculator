@@ -6,6 +6,9 @@ It is written in C#/Razor using the .NET 8 Blazor Webassembly framework. Therefo
 
 The statistical calculations are fully implemented in C# and mostly based on the mono version of Accord.NET, with some additional tests and metrics being custom implementations.
 
+![SUSStatisticsCalculatorMockup](https://github.com/user-attachments/assets/ae0a4ce1-fd4d-4001-a70e-ec6606ceecfc)
+
+
 ## Statistical Tests of the SUS Statistics Calculator
 
 All descriptive statistics for the calculation of the SUS study scores can be found in the [SUSStudy.cs](Statistics/Services/SUSStudy.cs) class.
