@@ -1,0 +1,61 @@
+﻿@page "/"
+@using Statistics.Components.Helpers
+@using Statistics.Services
+
+@inject IJSRuntime JavaScript
+@inject NavigationManager NavigationManager;
+@inject GlobalAppState GlobalAppState
+
+<section>
+    <article id="article" class="animate__animated animate__fadeIn">
+        <section style="margin: 75px">
+            <h3 class="componentHeaders">1. Load your System Usability Scale study data.</h3>
+            <p>
+                First, load the data of your System Usability Scale study in .csv format into the tool. The loaded data
+                is never uploaded to any server, it is fully processed locally in your browser using WebAssembly.
+            </p>
+            <p>
+                The data should be in the following format: As with all other tools of the toolkit, the first row should contain the column names. They should be
+                labeled as follows: "Question 1",
+                "Question 2", "Question 3", "Question 4", "Question 5", "Question 6", "Question 7", "Question 8",
+                "Question 9",
+                "Question 10", and "System". All subsequent rows should contain the SUS data. The values for the ten
+                questions have to be numbers between 1 (Strongly Disagree) and 5 (Strongly Agree). Other or empty
+                values can not be processed. The system value can be a text, including spaces. This value is used by the tools as the variable.
+                Importantly, if you provide dependent samples, the order of the questionnaire scores from participants in your CSV has to be in the same order for each variable.
+            </p>
+            <p>
+                You can
+                <a href="https://sus.mixality.de/assets/studyData.csv" target="_blank"
+                   data-tooltip="A .csv file with sample data in the correct format">
+                    download an example .csv file
+                </a>
+                or use the analysis component first, where you can manually enter your study data and download a
+                compatible .csv file.
+            </p>
+        </section>
+        <section>
+            <div class="grid">
+                <div>
+                    <a href="https://analysis.sus.tools">
+                        <button class="secondary navigationButton"
+                                data-tooltip="Manually insert the data into the analysis component of the tool">
+                            Go to
+                            analysis.sus.tools
+                        </button>
+                    </a>
+                </div>
+                <div>
+                    <button class="navigationButton" data-tooltip="Load a prepared .csv file with your SUS study data"
+                            @onclick="TriggerFilePicker">
+                        Load a .csv file
+                    </button>
+                    <InputFile OnChange="HandleFileLoad" id="file-picker" Accept=".csv" style="display: none;"/>
+                </div>
+            </div>
+        </section>
+    </article>
+</section>
+
+<ModalWindow @ref="_fileProcessingErrorModalWindow" Identifier="LoadCSVModalWindow"
+             Title="An error occurred while parsing the .csv file" Text="@_modalErrorMessage"/>

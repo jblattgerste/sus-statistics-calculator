@@ -1,0 +1,83 @@
+@inject IJSRuntime JavaScript
+
+<dialog id="@Identifier">
+    <article>
+        <header>
+            <h3 class="componentHeaders">@Title</h3>
+        </header>
+        <p>
+            @Text
+        </p>
+        <footer>
+            <button class="secondary navigationButton" @onclick="Close">
+                @ButtonText
+            </button>
+        </footer>
+    </article>
+</dialog>
+
+@code {
+
+    /// <summary>
+    ///     Required parameter for the modal window to be identified.
+    /// </summary>
+    [Parameter]
+    public required string Identifier { get; set; }
+
+    /// <summary>
+    ///     The title of the modal window (header).
+    /// </summary>
+    [Parameter]
+    public required string Title { get; set; }
+
+    /// <summary>
+    ///     The text of the modal windows body.
+    /// </summary>
+    [Parameter]
+    public string? Text { get; set; } = "";
+
+    /// <summary>
+    ///     The text of the button to close the modal window.
+    ///     Default: "Close"
+    /// </summary>
+    [Parameter]
+    public string? ButtonText { get; set; } = "Close";
+
+    /// <summary>
+    ///     Import the associated razor.js file for the LoadCSV page on loading of this component.
+    /// </summary>
+    private IJSObjectReference? _javascriptObjectReference;
+
+    /// <summary>
+    ///     On the first render, import the associated razor.js file for the LoadCSV page and set a static indicator to
+    ///     true so we dont re-import the file on subsequent usages of the component.
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // if this is the first render, dynamically import the associated razor.js file for the LoadCSV page
+        if (firstRender)
+            _javascriptObjectReference = await JavaScript.InvokeAsync<IJSObjectReference>("import",
+                "./Components/Helpers/ModalWindow.razor.js");
+    }
+
+    /// <summary>
+    ///     Opens the modal window.
+    /// </summary>
+    public async Task Open()
+    {
+        // Javascript interop to open the modal window
+        await (_javascriptObjectReference ?? throw new InvalidOperationException())
+            .InvokeVoidAsync("openModal", Identifier);
+    }
+
+    /// <summary>
+    ///     Closes the modal window (when the button is clicked)
+    /// </summary>
+    private async Task Close()
+    {
+        // Javascript interop to close the modal window
+        await (_javascriptObjectReference ?? throw new InvalidOperationException())
+            .InvokeVoidAsync("closeModal", Identifier);
+    }
+
+}

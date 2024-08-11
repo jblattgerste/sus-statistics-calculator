@@ -1,0 +1,2 @@
+# Mark all files in the /Statistics/wwwroot/ directory as vendored
+/Statistics/wwwroot/** linguist-vendored

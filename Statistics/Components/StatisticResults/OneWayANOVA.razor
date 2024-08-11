@@ -1,0 +1,69 @@
+@using Accord.Statistics.Testing
+@if (Result != null && PostHocResults != null && Result.Table != null)
+{
+    <h4>One-way ANOVA results</h4>
+    <blockquote>
+        <p>
+            <i>@ApaStyleResult?.Item1</i>
+        </p>
+        <p>
+            <i>@ApaStyleResult?.Item2</i>
+        </p>
+        @if (IsANOVASignificant)
+        {
+            <p>
+                <i>@ApaStyleResult?.Item3</i>
+            </p>
+        }
+        else
+        {
+            <p>(As the ANOVA did not find a significant difference between groups, no post-hoc tests were applied.)</p>
+        }
+    </blockquote>
+
+    <h4>One-way ANOVA table</h4>
+    <table>
+        <tr>
+            <th>
+                <b>Source</b>
+            </th>
+            <th>
+                <b>DF</b>
+            </th>
+            <th>
+                <b>Sum of Squares</b>
+            </th>
+            <th>
+                <b>Mean Squares</b>
+            </th>
+            <th>
+                <b>F Statistic</b>
+            </th>
+            <th>
+                <b>P-value</b>
+            </th>
+        </tr>
+        @if (Result?.Table != null)
+        {
+            foreach (AnovaVariationSource? row in Result?.Table!)
+            {
+                <tr>
+                    <td>@row.Source</td>
+                    <td>@row.DegreesOfFreedom</td>
+                    <td>@Math.Round(row.SumOfSquares, 2)</td>
+                    <td>@Math.Round(row.MeanSquares, 2)</td>
+                    <td>
+                        @if (row.Statistic != null) @Math.Round((float)row.Statistic, 2)
+                    </td>
+                    <td>
+                        @if (row.Significance != null) @Math.Round(row.Significance.PValue, 5)
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+}
+else
+{
+    <p>Error: Could not calculate the results. Please ensure valid data is provided.</p>
+}

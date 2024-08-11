@@ -1,0 +1,105 @@
+@page "/VariableSelection"
+@using Statistics.Components.Visualization
+@using Statistics.Services
+
+@inject GlobalAppState GlobalAppState
+@inject NavigationManager NavigationManager
+
+<section>
+    <article id="article" class="animate__animated animate__fadeIn">
+        <section style="margin-left: 75px; margin-right: 75px; margin-top: 75px">
+            <h3 class="componentHeaders">2. Select the systems/variables you want to compare</h3>
+            <div class="outline">
+                <blockquote>
+                    <details style="margin-bottom: 0;">
+                        <summary>
+                            Your data has been successfully loaded into the tool and was pre-processed.
+                        </summary>
+                        <small>
+                            <ul>
+                                @foreach (SUSStudy study in _calculator?.Studies!)
+                                {
+                                    <li>
+                                        <p>
+                                            The system/variable <b>@study.SystemName</b> achieved an SUS study score of
+                                            <b>@study.StudyScore</b> with a sample standard deviation of
+                                            <b>@study.StandardDeviation</b>. The lowest SUS score in the data is
+                                            <b>@study.MinScore</b> and the highest SUS score is <b>@study.MaxScore</b>. The
+                                            first quartile is <b>@study.FirstQuartile</b>, the median SUS score
+                                            <b>@study.MedianScore</b>, and the third quartile is <b>@study.FirstQuartile</b>.
+                                            All calculated SUS scores for this system/variable (in order of the provided raw
+                                            data item scores) are: <b>[@string.Join(", ", study.SUSScores)]</b>.
+                                        </p>
+                                    </li>
+                                }
+                            </ul>
+                        </small>
+                    </details>
+                </blockquote>
+            </div>
+            <p>
+                You can
+                <a href="https://sites.google.com/site/davidsstatistics/davids-statistics/notched-box-plots"
+                   target="_blank"
+                   data-tooltip="Davids Statistics provides a fairly good explanation of interpreting notched box plots if you are unfamiliar.">
+                    visually
+                    inspect the notched box plots
+                </a> displayed below. This will help you verify that the loaded data
+                has been correctly processed and is ready for analysis and provides you with a first impression of the
+                distributions. To get more detailed descriptive insights and produce camera ready plots, use
+                <a href="https://analysis.sus.tools" target="_blank">
+                    analysis.sus.tools
+                </a>.
+            </p>
+            <p>
+                Once you have inspected the pre-processed data, select the systems/variables you want to compare for the
+                inferential statistical analysis and proceed.
+            </p>
+        </section>
+        <section>
+            <PlotlyBoxPlot DataSets="@_susScoreLists" Names="@_systemNames"/>
+        </section>
+        <section style="margin-left: 75px; margin-right: 75px; margin-bottom: 75px">
+            <table>
+                <thead>
+                <tr>
+                    <th>System/Variable</th>
+                    <th>Number of SUS Scores</th>
+                    <th>Select</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (SUSStudy study in _calculator.Studies)
+                {
+                    <tr>
+                        <td>
+                            <b>@study.SystemName</b>
+                        </td>
+                        <td>
+                            @study.SUSScores.Count
+                        </td>
+                        <td>
+                            <input type="checkbox" checked
+                                   @onchange="@(e => ToggleStudySelection(study, (bool)(e.Value ?? throw new InvalidOperationException())))"/>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <div class="grid">
+                <div>
+                    <a href="./">
+                        <button class="secondary navigationButton">Go back</button>
+                    </a>
+                </div>
+                <div>
+                    <button class="navigationButton" @onclick="Proceed" disabled="@(!AreAtLeastTwoStudiesSelected)">
+                        Proceed
+                    </button>
+                </div>
+            </div>
+        </section>
+    </article>
+</section>

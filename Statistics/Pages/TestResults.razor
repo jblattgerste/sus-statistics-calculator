@@ -1,0 +1,74 @@
+@page "/TestResults"
+@using Statistics.Components.StatisticResults
+@using Statistics.Services
+
+@inject GlobalAppState GlobalAppState;
+
+<section>
+    <article id="article" class="animate__animated animate__fadeIn">
+        <section style="margin: 75px">
+            <h3 class="componentHeaders">Results</h3>
+            @switch (GlobalAppState.Calculator!.Parametric)
+            {
+                case Parametric.Parametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample && GlobalAppState.Calculator.ActiveStudies.Count == 2:
+                    // Independent samples t-test
+                    <p>
+                        According to the provided information, you want to calculate the inferential statistics for a
+                        hypothesis involving 2 independent samples, using a parametric test. Therefore an independent
+                        samples t-test is used:
+                    </p>
+                    <IndependentSamplesTTest Data="@_activeSUSScoreLists" SystemNames="@_systemNames"/>
+                    break;
+                case Parametric.NonParametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample && GlobalAppState.Calculator.ActiveStudies.Count == 2:
+                    // Mann–Whitney U test
+                    <p>According to the provided information, you want to calculate the inferential statistics for a hypothesis involving 2 independent samples, using a non-parametric test. Therefore a Mann-Whitney U test is used:</p>
+                    <MannWhitneyUTest Data="@_activeSUSScoreLists" SystemNames="@_systemNames"/>
+                    break;
+                case Parametric.Parametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample && GlobalAppState.Calculator.ActiveStudies.Count > 2:
+                    // ANOVA
+                    <p>According to the provided information, you want to calculate the inferential statistics for a hypothesis involving @_activeSUSScoreLists.Count independent samples, using a parametric test. Therefore a one-way ANOVA (with Bonferroni-corrected t-tests for the pairwise comparisons) is used:</p>
+                    <OneWayANOVA Data="@_activeSUSScoreLists" SystemNames="@_systemNames"/>
+                    break;
+                case Parametric.NonParametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample && GlobalAppState.Calculator.ActiveStudies.Count > 2:
+                    //Kruskal-Wallis test
+                    throw new NotImplementedException();
+                case Parametric.Parametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.DependentSample && GlobalAppState.Calculator.ActiveStudies.Count == 2:
+                    // Paired t-test
+                    <p>According to the provided information, you want to calculate the inferential statistics for a hypothesis involving 2 dependent samples, using a parametric test. Therefore a paired t-test is used:</p>
+                    <DependentTTest Data="@_activeSUSScoreLists" SystemNames="@_systemNames"/>
+                    break;
+                case Parametric.NonParametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.DependentSample && GlobalAppState.Calculator.ActiveStudies.Count == 2:
+                    // Wilcoxon signed-rank test
+                    <p>According to the provided information, you want to calculate the inferential statistics for a hypothesis involving 2 dependent samples, using a non-parametric test. Therefore a Wilcoxon signed-rank test is used:</p>
+                    <WilcoxonSignedRankTest Data="@_activeSUSScoreLists" SystemNames="@_systemNames"/>
+                    break;
+                case Parametric.Parametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.DependentSample && GlobalAppState.Calculator.ActiveStudies.Count > 2:
+                    // Repeated Measures ANOVA
+                    throw new NotImplementedException();
+                case Parametric.NonParametric when GlobalAppState.Calculator.SampleDependence == SampleDependence.DependentSample && GlobalAppState.Calculator.ActiveStudies.Count > 2:
+                    // Friedman test
+                    throw new NotImplementedException();
+                case Parametric.NotSet:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            <p>The SUS Statistics Calculator is open source under the MIT license. Feel free to copy and use the provided inferential statistics for any purpose. If you are using the results for publications or presentations in the scientific context, we would appreciate an acknowledgement in form of a <a href="https://github.com/jblattgerste/sus-analysis-toolkit?tab=readme-ov-file#acknowledgement" target="_blank">citation to our tool</a>. </p>
+        </section>
+        <div class="grid">
+            <div>
+                <a href="https://analysis.sus.tools" target="_blank">
+                    <button class="primary secondary navigationButton">
+                        Get more detailed descriptive insights!
+                    </button>
+                </a>
+            </div>
+            <div>
+                <a href="https://analysis.sus.tools" target="_blank">
+                    <button class="primary secondary navigationButton">
+                        Generate Camera Ready plots!
+                    </button>
+                </a>
+            </div>
+        </div>
+    </article>
+</section>

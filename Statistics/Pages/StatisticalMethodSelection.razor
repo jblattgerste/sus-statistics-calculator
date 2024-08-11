@@ -1,0 +1,364 @@
+@page "/StatisticalMethodSelection"
+@using Statistics.Components.Helpers
+@using Statistics.Services
+
+@inject NavigationManager NavigationManager
+@inject GlobalAppState GlobalAppState;
+
+<section>
+    <article class="animate__animated animate__fadeIn">
+        <section style="margin: 75px">
+            <h3 class="componentHeaders">4. Select the type of statistical test you want to apply</h3>
+            <p>
+                Alright, you want to calculate the inferential statistics for your study with @GlobalAppState.Calculator!.ActiveStudies.Count
+
+                @if (GlobalAppState.Calculator.SampleDependence == SampleDependence.DependentSample)
+                {
+                    <span> repeated measures.</span>
+                }
+                else
+                {
+                    <span> independent samples.</span>
+                }
+                Before we proceed with the statistical test, we need to decide whether we want to use a <u data-tooltip="Assume a specific data distribution, like normality, and utilize statistics such as means and standard deviations.">parametric</u> or
+                a <u data-tooltip="Make minimal assumptions about the underlying distribution and utilize the rank or order of the data.">non-parametric</u> test. This is important because parametric tests are more powerful but based on assumptions about the data.
+                This page helps you to decide which test is more appropriate for your data.
+            </p>
+
+            @if (GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample)
+            {
+                <section>
+                    <h4>Sample sizes</h4>
+                    <p>
+                        First, lets take a look at the provided sample sizes. As a rule of thumb: If the mean better represents
+                        your data’s center and the sample size is n > 30, it might be appropriate to use a parametric
+                        test. If the sample sizes are small or medians are more representative, you usually would use a non-parametric test.
+                    </p>
+
+                    <small >
+                        <table >
+                            <thead>
+                            <th>System/Variable</th>
+                            <th>Sample size</th>
+                            <th> </th>
+                            </thead>
+                            @foreach (SUSStudy study in GlobalAppState.Calculator.ActiveStudies)
+                            {
+                                <tbody>
+                                <td>
+                                    <b>@study.SystemName</b>
+                                </td>
+                                <td>
+                                    @study.SUSScores.Count
+                                </td>
+                                <td>
+                                    @if (study.SUSScores.Count < 30)
+                                    {
+                                        <span style="color: orangered; font-size: 32px">⚠️</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: green; font-size: 32px">☑️</span>
+                                    }
+                                </td>
+                                </tbody>
+                            }
+                        </table>
+                    </small>
+                </section>
+                <section >
+                    @{
+                        List<int> sizes = GlobalAppState.Calculator.ActiveStudies.Select(s => s.SUSScores.Count).ToList();
+                        int minSize = sizes.Min();
+                        int maxSize = sizes.Max();
+                        int sizeDifferencePercentage = minSize != 0 ? 100 * (maxSize - minSize) / minSize : 0;
+
+                        string text;
+                        string style;
+                        string icon;
+
+                        if (minSize == maxSize)
+                        {
+                            text = "The provided sample sizes between systems/variables are equal.";
+                            style = "color: green; font-size: 32px";
+                            icon = "☑️";
+                        }
+                        else
+                        {
+                            text = $"The largest provided sample size is {sizeDifferencePercentage}% larger than smallest sample size.";
+                            if (sizeDifferencePercentage < 50)
+                            {
+                                style = "color: green; font-size: 32px";
+                                icon = "☑️";
+                            }
+                            else
+                            {
+                                style = "color: orangered; font-size: 32px";
+                                icon = "⚠️";
+                            }
+                        }
+                    }
+                    <h4> Equality of sample sizes</h4>
+                    <blockquote>
+                        For parametric tests, sample sizes should be roughly equal. @text
+                        <span style="@style">@icon</span>
+                    </blockquote>
+                </section>
+
+                <section >
+                    <h4>Normality of distributions</h4>
+                    <p>
+                        We also need to check if the samples are normally distributed. This is
+                        important because parametric tests assume the data to be normally distributed. If the data
+                        is not normally distributed, a non-parametric test is often more appropriate. Nonetheless, despite non-normality
+                        of the distribution of SUS scores in a sample, parametric tests might still be applicable for large sample
+                        sizes due to the Central Limit Theorem. (<a href="https://measuringu.com/10-things-sus/" target="_blank">Source</a>)
+                    </p>
+                    <small >
+                        <table >
+                            <thead>
+                            <th>System/Variable</th>
+                            <th>Test Results</th>
+                            <th> </th>
+                            </thead>
+                            @foreach (SUSStudy study in GlobalAppState.Calculator.ActiveStudies)
+                            {
+                                ShapiroWilkTestResult testResult = ShapiroWilkTestCalculator.PerformTest(study.SUSScores);
+                                <tbody>
+                                <td>
+                                    <b>@study.SystemName</b>
+                                </td>
+                                <td>
+                                    @testResult.ApaStyleResultDescription()
+                                </td>
+                                <td>
+                                    @if (!testResult.IsNormal)
+                                    {
+                                        <span style="color: orangered; font-size: 32px">⚠️</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: green; font-size: 32px">☑️</span>
+                                    }
+                                </td>
+                                </tbody>
+                            }
+                        </table>
+                    </small>
+                </section>
+                <section>
+                    <h4>Homogeneity of variance</h4>
+                    <p>
+                        Finally, we have to check for homogeneity of variance. This is important because
+                        parametric tests require the variances of the groups to be (roughly) equal. If the variances are
+                        significantly heterogeneous, a non-parametric test might be more appropriate. Levenes test assumes
+                        normality. If Shapiro-Wilk tests are significant, Levenes test should be interpreted with caution.
+                    </p>
+                    @{
+                        LevenesTestResult levenesTest = LevenesTestCalculator.PerformTest(GlobalAppState.Calculator.ActiveStudies.Select(s => s.SUSScores).ToList());
+                    <blockquote>
+                        @levenesTest.ApaStyleResultDescription
+                        @if (levenesTest.Significance)
+                        {
+                            <span style="color: orangered; font-size: 32px"> ⚠️</span>
+                        }
+                        else
+                        {
+                            <span style="color: green; font-size: 32px"> ☑️</span>
+                        }
+                    </blockquote>}
+                </section>
+            }
+            else if (GlobalAppState.Calculator.SampleDependence == SampleDependence.DependentSample)
+            {
+                <h4>Sample size</h4>
+                <p>
+                    First, let's take a look at the provided sample size. For dependent samples, if the sample size is
+                    n > 30, it might be appropriate to use a parametric test. If the sample size is small, you
+                    should usually use a non-parametric test.
+                </p>
+                <blockquote>
+                    <p>
+                        The provided sample size is @GlobalAppState.Calculator.ActiveStudies.First().SUSScores.Count
+                        @if (GlobalAppState.Calculator.ActiveStudies.First().SUSScores.Count < 30)
+                        {
+                            <span style="color: orangered; font-size: 32px">⚠️</span>
+                        }
+                        else
+                        {
+                            <span style="color: green; font-size: 32px">☑️</span>
+                        }
+                    </p>
+                </blockquote>
+
+                <section>
+                    <h4>Normality of residuals</h4>
+                    <p>
+                        We also need to check if the residuals (the difference between the repeated measures) are normally distributed. This is important because parametric tests for dependent samples assume residuals to be normally distributed. If the data is not normally distributed, a non-parametric test is often more appropriate. Nonetheless, despite non-normality of the distribution of residuals in a sample, parametric tests might still be applicable for large sample sizes due to the Central Limit Theorem. (<a href="https://measuringu.com/10-things-sus/" target="_blank">Source</a>)
+                    </p>
+                    <small>
+                        <table>
+                            <thead>
+                            <th>Residual</th>
+                            <th>Test Results</th>
+                            <th></th>
+                            </thead>
+                            <tbody>
+                            @foreach ((SUSStudy study1, SUSStudy study2, int index) in
+                                      GlobalAppState.Calculator.ActiveStudies
+                                          .Zip(GlobalAppState.Calculator.ActiveStudies
+                                              .Skip(1), (s1, s2)
+                                              => (s1, s2, GlobalAppState.Calculator.ActiveStudies.IndexOf(s1))))
+                            {
+                                List<float> differences = study1.SUSScores.Zip(study2.SUSScores, (a, b) => b - a).ToList();
+                                ShapiroWilkTestResult testResult = ShapiroWilkTestCalculator.PerformTest(differences);
+
+                                <tr>
+                                    <td>
+                                        <b>@study1.SystemName - @study2.SystemName</b>
+                                    </td>
+                                    <td>
+                                        @testResult.ApaStyleResultDescription()
+                                    </td>
+                                    <td>
+                                        @if (!testResult.IsNormal)
+                                        {
+                                            <span style="color: orangered; font-size: 32px">⚠️</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: green; font-size: 32px">☑️</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </small>
+                </section>
+
+                <h4>Outliers</h4>
+                <p>
+                    For dependent samples, it is also important to check for outliers in the residuals. Outliers can have an impact on the results of parametric tests for dependent samples.
+                </p>
+                <small>
+                    <table>
+                        <thead>
+                        <th>Residual</th>
+                        <th>Test Results</th>
+                        <th></th>
+                        </thead>
+                        <tbody>
+                        @foreach ((SUSStudy study1, SUSStudy study2, int index) in
+                                  GlobalAppState.Calculator.ActiveStudies
+                                      .Zip(GlobalAppState.Calculator.ActiveStudies
+                                          .Skip(1), (s1, s2)
+                                          => (s1, s2, GlobalAppState.Calculator.ActiveStudies.IndexOf(s1))))
+                        {
+                            List<float> differences = study1.SUSScores.Zip(study2.SUSScores, (a, b) => b - a).ToList();
+                            List<float> outlierDetectionResult = TukeyFencesCalculator.IdentifyOutliers(differences);
+                            <tr>
+                                <td>
+                                    <b>@study1.SystemName - @study2.SystemName</b>
+                                </td>
+                                <td>
+                                    @if (outlierDetectionResult.Count != 0)
+                                    {
+                                        <span>
+                                            There are @outlierDetectionResult.Count outliers in the residuals.
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            There are no outliers in the residuals.
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (outlierDetectionResult.Count != 0)
+                                    {
+                                        <span style="color: orangered; font-size: 32px">⚠️</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: green; font-size: 32px">☑️</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </small>
+            }
+            else
+            {
+                <p>Something went wrong. Please go back and try again.</p>
+            }
+        </section>
+    </article>
+    <div class="grid">
+        <article class="animate__animated animate__fadeIn">
+            <section>
+                <h4 class="componentHeaders">Parametric tests</h4>
+                <small>
+                    @if (GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample)
+                    {
+                        <p>
+                            Parametric tests assume that data is normally distributed and that variances of the groups are equal.
+                            If these assumptions are met, parametric tests are more powerful. However, if the
+                            assumptions are violated, non-parametric tests might be more appropriate.
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+                            Parametric tests for dependent samples assume that residuals are normally distributed and are sensitive to outliers.
+                            If the assumptions are met, parametric tests are more powerful. However, if the assumptions
+                            are violated, non-parametric tests might be more appropriate.
+                        </p>
+                    }
+
+                </small>
+            </section>
+            <button class="navigationButton" @onclick="ProceedWithParametricTest">Use a parametric test</button>
+        </article>
+        <article class="animate__animated animate__fadeIn">
+            <section>
+                <h4 class="componentHeaders">Non-parametric tests</h4>
+                <small>
+                    @if (GlobalAppState.Calculator.SampleDependence == SampleDependence.IndependentSample)
+                    {
+                        <p>
+                            Non-parametric tests make fewer assumptions about the data distribution and are generally considered more robust. If the sample size is small or uneven, data is not normally distributed or the variances are not equal, non-parametric tests
+                            might be more appropriate.
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+                            Non-parametric tests make fewer assumptions about the data distribution and are generally considered more robust. If the sample size is small, residuals are not normally distributed, or contain outliers, non-parametric tests might be more appropriate.
+                        </p>
+                    }
+
+                </small>
+            </section>
+            <button class="navigationButton" @onclick="ProceedWithNonParametricTest">Use a non-parametric tests</button>
+        </article>
+    </div>
+</section>
+
+<ModalWindow @ref="_kruskalWallisNotSupportedModal"
+             Identifier="NoKruskalWallis"
+             Title="This is currently not supported!"
+             Text="For testing an independent sample with more than 2 data points, using a non-parametric test, a Kruskal–Wallis test would be used. This is currently not supported by the tool. Please use a parametric test (the one-way ANOVA) or another statistics software."/>
+
+<ModalWindow @ref="_repeatedANOVANotSupportedModal"
+             Identifier="NoRepeatedANOVAModal"
+             Title="This is currently not supported!"
+             Text="For testing a dependent sample with more than 2 data points, using a parametric test, a Repeated Measures ANOVA would be used. This is currently not supported by the tool. In this case, please use another statistics software."/>
+
+<ModalWindow @ref="_friedmanNotSupportedModal"
+             Identifier="NoFriedmanModal"
+             Title="This is currently not supported!"
+             Text="For testing a dependent sample with more than 2 data points, using a non-parametric test, a Friedman test would be used. This is currently not supported by the tool. In this case, please use another statistics software."/>
