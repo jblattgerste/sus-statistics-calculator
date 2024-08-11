@@ -27,10 +27,6 @@ jobs:
     - name: Build Blazor
       run: dotnet publish -c Release -o build
 
-    - name: Update base href
-      run: |
-        sed -i 's|<base href="/"/>|<base href="/sus-statistics-calculator/"/>|g' build/wwwroot/index.html
-
     - name: Fix 404 Routing
       run: cp build/wwwroot/index.html build/wwwroot/404.html
 
