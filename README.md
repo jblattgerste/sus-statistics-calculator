@@ -27,11 +27,11 @@ The statistical test used depends on the number of samples the user wants to com
 | ✅ | Paired t-test [(Accord.NET)](http://accord-framework.net/docs/html/T_Accord_Statistics_Testing_TTest.htm) | 2         | Dependent   | Parametric        |
 | ✅ | Wilcoxon Signed-Rank Test [(Accord.NET)](http://accord-framework.net/docs/html/T_Accord_Statistics_Testing_WilcoxonSignedRankTest.htm) | 2         | Dependent   | Non-Parametric    |
 | ✅ | One-way ANOVA [(Accord.NET)](http://accord-framework.net/docs/html/T_Accord_Statistics_Testing_OneWayAnova.htm) | n         | Independent | Parametric        |
-| ❌ | Kruskal-Wallis H Test [(Metanumerics ?)](https://github.com/dcwuser/metanumerics/blob/master/Numerics/Statistics/Sample.cs)* | n         | Independent | Non-Parametric    |
-| ❌ | Repeated Measures ANOVA (?)* | n         | Dependent   | Parametric    |
-| ❌ | Friedman Test (?)* | n         | Dependent   | Non-Parametric    |
+| ❌ | Kruskal-Wallis H Test [(Metanumerics)](https://github.com/dcwuser/metanumerics/blob/master/Numerics/Statistics/Sample.cs) or [(F#.Stats)](https://fslab.org/FSharp.Stats/Testing.html#H-Test)* | n         | Independent | Non-Parametric    |
+| ❌ | Repeated Measures ANOVA (?) | n         | Dependent   | Parametric    |
+| ❌ | Friedman Test [(F#.Stats)](https://fslab.org/FSharp.Stats/Testing.html#Friedman-Test)* | n         | Dependent   | Non-Parametric    |
 
-Notes: Tests marked with * are currently work in progress. For one, Accord.NET does not provide them to be implemented through their statistics library, and furthermore they are slightly more complicated to get right because of assumptions, corrections and post-hoc tests. So I will try to focus on the most common tests for now to make sure they are working as expected. Furthermore, while i do find e.g. a Kruskal-Wallis H Test in the metanumerics library, for the Friedman Test and the Reapeated Measures ANOVA I cant find any libraries at all so it might be necessary to fully implement them from scratch.
+Notes: Tests marked with * are currently work in progress. For one, Accord.NET does not provide them to be implemented through their statistics library, and furthermore they are slightly more complicated to get right because of assumptions, corrections and post-hoc tests. So I will try to focus on the most common tests for now to make sure they are working as expected. Furthermore, while i do find e.g. a Kruskal-Wallis H Test in C# and both the Kruskal-Wallis and Friedman test through F# libraries, at least for the Reapeated Measures ANOVA I cant find any libraries at all so it might be necessary to fully implement it from scratch.
 
 ## Limitations / Work in progress
 
