@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Statistics",
   "resources": {
-    "hash": "sha256-QBoUTUAc2/6e+G1MjNn6eIAHbaxrTUAWW0wHgnre69I=",
+    "hash": "sha256-lQbSgdyD3F/lKOJm7ePpOvs0curowm8iaTv2bSPU3Xg=",
     "jsModuleNative": {
       "dotnet.native.8.0.7.qq7ef31pi4.js": "sha256-9ISqqCNpKrWIglVY2f3ALKPsmpTshJtf2fEOwF6u0gQ="
     },
@@ -34,7 +34,7 @@
       "mscorlib.wasm": "sha256-YF57rSmtzOrces+qcCRsmTCE+6mswm1G0w73ZOMwRXM=",
       "netstandard.wasm": "sha256-TAHb5UeYJqrxv5IHWHMgOGD3oxOAXZCZT8RTFbuO3dg=",
       "Plotly.Blazor.wasm": "sha256-Ffygj82rQdQb6m6pNN1l99am0CVQ9rUi6HZiOiyV8Tg=",
-      "Statistics.wasm": "sha256-5BO98hmhh2ys9rjU0RBBqHi3CjLlwfp7vVg3tvw8DGI=",
+      "Statistics.wasm": "sha256-0tpCHC/p2u1gxOVv/qbNrsnBi7WWqrVLILzxADfCmL8=",
       "System.Collections.Concurrent.wasm": "sha256-dmeciP8MHAiTyqkaSrdPm3MZnthhy+xigbNzl5QavdE=",
       "System.Collections.NonGeneric.wasm": "sha256-oyyKebGbRD0gyHvoKO4mx0BdXODX0hQ+TVJ0k9UjTPA=",
       "System.Collections.Specialized.wasm": "sha256-E19sChrIV1BAR+Sn2oyi5/ZBXgb4ID7RHTOjPDtPuu8=",
