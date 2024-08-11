@@ -1,0 +1,29 @@
+/* /Components/Visualization/PlotlyBoxPlot.razor.rz.scp.css */
+/* These classes is for switching out the loading plot element */
+
+.chart-container[b-4e6vo80c0e] {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+}
+
+.spinner-container[b-4e6vo80c0e] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.plotly-chart[b-4e6vo80c0e] {
+    width: 100%;
+    height: 100%;
+}
+
+.hidden[b-4e6vo80c0e] {
+    display: none !important;
+}
